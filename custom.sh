@@ -58,7 +58,7 @@ rankmirrors -n 10 /etc/pacman.d/mirrorlist.bak > /etc/pacman.d/mirrorlist
 
 echo "generated new mirror list"
 
-pacstrap -K base base-devel linux linux-firmware linux-headers intel-ucode sudo nano dhcpcd networkmanager --noconfirm --needed
+pacstrap -K /mnt base base-devel linux linux-firmware linux-headers intel-ucode sudo nano dhcpcd networkmanager --noconfirm --needed
 
 echo "installed base, base-devel, kernel and other basics"
 
