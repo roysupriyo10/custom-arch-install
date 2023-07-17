@@ -1,5 +1,9 @@
 
 
+echo "set root password"
+
+passwd
+
 echo "efi: "
 
 read EFI
@@ -34,7 +38,7 @@ mkfs.ext4 "${ROOT}"
 
 echo "formatted root partition"
 
-mount --mkdir "${EFI}" /mnt/boot/efi
+mount --mkdir "${EFI}" /mnt/boot/EFI
 
 echo "mounted efi partition to /mnt/boot/efi"
 
@@ -62,7 +66,7 @@ pacstrap -K /mnt base base-devel linux linux-firmware linux-headers intel-ucode 
 
 echo "installed base, base-devel, kernel and other basics"
 
-genfstab -U /mnt >> /mnt/etc/fstab
+genfstab -U -p /mnt >> /mnt/etc/fstab
 
 echo "generated file system table"
 
@@ -92,7 +96,7 @@ echo "${HOSTNAME}" > /etc/hostname
 cat <<EOF > /etc/hosts
 127.0.0.1	localhost
 ::1			localhost
-127.0.1.1	arch.localdomain	arch
+127.0.1.1	${HOSTNAME}.localdomain	${HOSTNAME}
 EOF
 
 echo "added localhost to /etc/hosts and changed host name"
@@ -101,16 +105,25 @@ pacman -S grub efibootmgr dosfstools mtools --noconfirm --needed
 
 echo "installed grub and relevant tools"
 
-grub-install --target=x86_64-efi --bootloader-id=GRUB --recheck
+grub-install --target=x86_64-efi --bootloader-id=grub --recheck
 
 echo "grub install done"
 
 grub-mkconfig -o /boot/grub/grub.cfg
 
+fallocate -l 11G /swapfile
+chmod 600 /swapfile
+mkswap /swapfile
+echo '/swapfile none swap sw 0 0' | tee -a /etc/fstab
+
 systemctl enable dhcpcd
 systemctl enable NetworkManager
 
 echo "created necessary symlinks"
+
+echo "set root passwd"
+
+passwd
 
 REALEND
 
