@@ -38,11 +38,13 @@ mkfs.ext4 "${ROOT}"
 
 echo "formatted root partition"
 
-mount --mkdir "${EFI}" /mnt/boot/EFI
 
 echo "mounted efi partition to /mnt/boot/efi"
 
 mount "${ROOT}" /mnt
+mkdir /mnt/boot/
+mkdir /mnt/boot/efi
+mount "${EFI}" /mnt/boot/efi
 
 echo "mounted root partition to /mnt"
 
@@ -62,11 +64,13 @@ rankmirrors -n 10 /etc/pacman.d/mirrorlist.bak > /etc/pacman.d/mirrorlist
 
 echo "generated new mirror list"
 
-pacstrap -K /mnt base base-devel linux linux-firmware linux-headers intel-ucode sudo nano dhcpcd networkmanager --noconfirm --needed
+pacstrap -K /mnt base base-devel linux linux-firmware linux-headers intel-ucode sudo vim git dhcpcd networkmanager --noconfirm --needed
 
 echo "installed base, base-devel, kernel and other basics"
 
-genfstab -U -p /mnt >> /mnt/etc/fstab
+genfstab -U /mnt >> /mnt/etc/fstab
+
+cat /mnt/etc/fstab
 
 echo "generated file system table"
 
@@ -114,6 +118,7 @@ grub-mkconfig -o /boot/grub/grub.cfg
 fallocate -l 11G /swapfile
 chmod 600 /swapfile
 mkswap /swapfile
+swapon /swapfile
 echo '/swapfile none swap sw 0 0' | tee -a /etc/fstab
 
 systemctl enable dhcpcd
